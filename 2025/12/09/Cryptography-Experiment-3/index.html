@@ -4,15 +4,17 @@
   <meta charset="utf-8">
   
   
-  <title>&#39;Cryptography-Experiment-3&#39; | Hexo</title>
+  <title>Cryptography-Experiment-3 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="article">
-<meta property="og:title" content="&#39;Cryptography-Experiment-3&#39;">
+  <meta name="description" content="现代密码学实验三：RSA 公钥加密算法   课程名称 现代密码学 实验人 冯汝鑫    题目 实验三：RSA 算法实现与安全性分析 学号 23009200482   实验摘要本实验围绕 RSA 公钥加密体制展开，分为两个部分。首先，针对 Project Euler Problem 182，研究了 RSA 中的“不动点”（Unconcealed Messages）问题。通过分析数学原理，摒弃了低效的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cryptography-Experiment-3">
 <meta property="og:url" content="http://example.com/2025/12/09/Cryptography-Experiment-3/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="现代密码学实验三：RSA 公钥加密算法   课程名称 现代密码学 实验人 冯汝鑫    题目 实验三：RSA 算法实现与安全性分析 学号 23009200482   实验摘要本实验围绕 RSA 公钥加密体制展开，分为两个部分。首先，针对 Project Euler Problem 182，研究了 RSA 中的“不动点”（Unconcealed Messages）问题。通过分析数学原理，摒弃了低效的">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-12-09T13:37:08.000Z">
-<meta property="article:modified_time" content="2025-12-09T13:37:08.972Z">
+<meta property="article:published_time" content="2025-12-09T12:57:50.000Z">
+<meta property="article:modified_time" content="2025-12-09T19:51:08.051Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -74,7 +76,7 @@
         <section id="main"><article id="post-Cryptography-Experiment-3" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/12/09/Cryptography-Experiment-3/" class="article-date">
-  <time class="dt-published" datetime="2025-12-09T13:37:08.000Z" itemprop="datePublished">2025-12-09</time>
+  <time class="dt-published" datetime="2025-12-09T12:57:50.000Z" itemprop="datePublished">2025-12-09</time>
 </a>
     
   </div>
@@ -85,7 +87,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      &#39;Cryptography-Experiment-3&#39;
+      Cryptography-Experiment-3
     </h1>
   
 
@@ -93,11 +95,74 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        
+        <h1 id="现代密码学实验三：RSA-公钥加密算法"><a href="#现代密码学实验三：RSA-公钥加密算法" class="headerlink" title="现代密码学实验三：RSA 公钥加密算法"></a>现代密码学实验三：RSA 公钥加密算法</h1><table>
+<thead>
+<tr>
+<th align="left">课程名称</th>
+<th align="left">现代密码学</th>
+<th align="left">实验人</th>
+<th align="left">冯汝鑫</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>题目</strong></td>
+<td align="left"><strong>实验三：RSA 算法实现与安全性分析</strong></td>
+<td align="left"><strong>学号</strong></td>
+<td align="left">23009200482</td>
+</tr>
+</tbody></table>
+<h2 id="实验摘要"><a href="#实验摘要" class="headerlink" title="实验摘要"></a>实验摘要</h2><p>本实验围绕 RSA 公钥加密体制展开，分为两个部分。<br>首先，针对 <strong>Project Euler Problem 182</strong>，研究了 RSA 中的“不动点”（Unconcealed Messages）问题。通过分析数学原理，摒弃了低效的暴力遍历方法，采用基于 GCD 的公式快速计算特定 $p, q$ 下的不动点数量，从而筛选出最优的公钥指数 $e$。<br>其次，在 <strong>Cryptopals Set 5</strong> 的挑战中，从零实现了一个基础的 RSA 加密系统。实验中不依赖库函数，而是手动实现了扩展欧几里得算法以求解模逆元，并完成了素数生成、密钥对生成及加解密验证。<br>通过本次实验，深入理解了 RSA 的数学基石（欧拉定理、模逆运算）以及参数选择对安全性的影响。</p>
+<hr>
+<h2 id="一、-Project-Euler-182-RSA-Encryption"><a href="#一、-Project-Euler-182-RSA-Encryption" class="headerlink" title="一、 Project Euler 182: RSA Encryption"></a>一、 Project Euler 182: RSA Encryption</h2><h3 id="1-1-题目描述"><a href="#1-1-题目描述" class="headerlink" title="1.1 题目描述"></a>1.1 题目描述</h3><p>题目来源：<a target="_blank" rel="noopener" href="https://projecteuler.net/problem=182">Project Euler Problem 182</a> 。<br>在 RSA 系统中，对于给定的公钥 $(n, e)$，如果消息 $m$ 满足 $m^e \equiv m \pmod n$，则称 $m$ 为未被隐藏的消息（Unconcealed Message）或不动点。<br>题目给定 $p&#x3D;1009, q&#x3D;3643$，要求找出所有满足 $\gcd(e, \phi(n))&#x3D;1$ 且 $1 &lt; e &lt; \phi(n)$ 的 $e$，使得未被隐藏的消息数量最少，并求这些 $e$ 的和。</p>
+<h3 id="1-2-理论分析"><a href="#1-2-理论分析" class="headerlink" title="1.2 理论分析"></a>1.2 理论分析</h3><p>对于 RSA 加密 $c \equiv m^e \pmod n$，我们希望密文 $c$ 不等于明文 $m$。但在实际中，总存在一些 $m$ 使得加密无效（如 $m&#x3D;0, m&#x3D;1$）。</p>
+<p><strong>计算不动点数量的公式：</strong><br>起初尝试遍历所有 $m$ 进行加密验证，但效率极低。根据数论推导，对于给定的 $n&#x3D;pq$ 和 $e$，满足 $m^e \equiv m \pmod n$ 的消息 $m$ 的数量 $N$ 可以通过以下公式直接计算：</p>
+<p>$$N &#x3D; (1 + \gcd(e-1, p-1)) \times (1 + \gcd(e-1, q-1))$$</p>
+<p>我们的目标是找到 $e$，使得 $N$ 最小。显然，$N$ 的最小值为 $p, q$ 互素情况下的极小值。</p>
+<h3 id="1-3-实验过程与代码"><a href="#1-3-实验过程与代码" class="headerlink" title="1.3 实验过程与代码"></a>1.3 实验过程与代码</h3><p>利用 <code>gmpy2</code> 库处理大数运算，根据上述公式筛选 $e$。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> gcd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 题目给定参数</span></span><br><span class="line">p = <span class="number">1009</span></span><br><span class="line">q = <span class="number">3643</span></span><br><span class="line">phi = (p - <span class="number">1</span>) * (q - <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化最小不动点数量为最大可能值</span></span><br><span class="line">min_unconcealed = p * q</span><br><span class="line">candidates = []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 遍历所有可能的 e (e 必须为奇数，步长为 2)</span></span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>, phi, <span class="number">2</span>):</span><br><span class="line">    <span class="comment"># e 必须与 phi(n) 互素</span></span><br><span class="line">    <span class="keyword">if</span> gcd(e, phi) != <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 使用公式计算不动点数量</span></span><br><span class="line">    count = (<span class="number">1</span> + gcd(e - <span class="number">1</span>, p - <span class="number">1</span>)) * (<span class="number">1</span> + gcd(e - <span class="number">1</span>, q - <span class="number">1</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> count &lt; min_unconcealed:</span><br><span class="line">        min_unconcealed = count</span><br><span class="line">        candidates = [e]</span><br><span class="line">    <span class="keyword">elif</span> count == min_unconcealed:</span><br><span class="line">        candidates.append(e)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Minimum unconcealed messages count: <span class="subst">&#123;min_unconcealed&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Sum of e: <span class="subst">&#123;<span class="built_in">sum</span>(candidates)&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;First 50 candidates for e:&quot;</span>, end=<span class="string">&quot; &quot;</span>)</span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> candidates[:<span class="number">50</span>]:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;<span class="subst">&#123;e&#125;</span> &#x27;</span>, end=<span class="string">&#x27;&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>()</span><br></pre></td></tr></table></figure>
+
+<p><strong>实验结果：</strong><br>程序成功输出了使不动点最少的 $e$ 的列表及其总和。该方法避免了对 $m$ 的遍历，将复杂度降低到了仅与 $e$ 的搜索空间相关。</p>
+<hr>
+<h2 id="二、-Cryptopals-Challenge-39-Implement-RSA"><a href="#二、-Cryptopals-Challenge-39-Implement-RSA" class="headerlink" title="二、 Cryptopals Challenge 39: Implement RSA"></a>二、 Cryptopals Challenge 39: Implement RSA</h2><h3 id="2-1-题目描述"><a href="#2-1-题目描述" class="headerlink" title="2.1 题目描述"></a>2.1 题目描述</h3><p>题目来源：<a target="_blank" rel="noopener" href="https://www.cryptopals.com/sets/5/challenges/39">Cryptopals Set 5 Challenge 39</a> 。<br>要求实现一个简单的 RSA 算法。核心要求是<strong>不使用库函数</strong>求解模逆，而是手动实现扩展欧几里得算法（Extended Euclidean Algorithm）和模逆函数（Modular Inverse）。</p>
+<h3 id="2-2-算法原理"><a href="#2-2-算法原理" class="headerlink" title="2.2 算法原理"></a>2.2 算法原理</h3><p>RSA 的安全性基于大整数分解的困难性。主要步骤如下：</p>
+<ol>
+<li><strong>密钥生成</strong>：<ul>
+<li>生成两个大素数 $p, q$。</li>
+<li>计算 $n &#x3D; p \times q$ 和 $\phi(n) &#x3D; (p-1)(q-1)$。</li>
+<li>选择公钥指数 $e$，满足 $\gcd(e, \phi(n)) &#x3D; 1$。</li>
+<li>计算私钥指数 $d$，使得 $ed \equiv 1 \pmod{\phi(n)}$。</li>
+</ul>
+</li>
+<li><strong>加密</strong>：$c \equiv m^e \pmod n$。</li>
+<li><strong>解密</strong>：$m \equiv c^d \pmod n$。</li>
+</ol>
+<p><strong>扩展欧几里得算法 (Extended GCD):</strong><br>用于求解 $ax + by &#x3D; \gcd(a, b)$ 的整数解 $x, y$。当 $\gcd(a, b)&#x3D;1$ 时，求得的 $x$ 即为 $a$ 模 $b$ 的逆元。</p>
+<h3 id="2-3-实验代码实现"><a href="#2-3-实验代码实现" class="headerlink" title="2.3 实验代码实现"></a>2.3 实验代码实现</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> next_prime, powmod</span><br><span class="line"><span class="keyword">from</span> secrets <span class="keyword">import</span> randbits</span><br><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> bytes_to_long</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手写欧几里得算法求最大公约数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">while</span> b != <span class="number">0</span>:</span><br><span class="line">        a, b = b, a % b</span><br><span class="line">    <span class="keyword">return</span> a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手写扩展欧几里得算法</span></span><br><span class="line"><span class="comment"># 返回 (x, y) 使得 ax + by = gcd(a, b)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ex_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">if</span> b == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        x1, y1 = ex_gcd(b, a % b)</span><br><span class="line">        x = y1</span><br><span class="line">        y = x1 - (a // b) * y1</span><br><span class="line">        <span class="keyword">return</span> x, y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 求模逆元：求解 e * d = 1 (mod phi)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">inverse</span>(<span class="params">a, m</span>):</span><br><span class="line">    x, _ = ex_gcd(a, m)</span><br><span class="line">    <span class="comment"># 确保结果为正数</span></span><br><span class="line">    <span class="keyword">return</span> (x % m + m) % m</span><br><span class="line"></span><br><span class="line"><span class="comment"># RSA 参数初始化</span></span><br><span class="line">e = <span class="number">3</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="comment"># 生成随机素数 (实验演示用，位数较小)</span></span><br><span class="line">    p = next_prime(randbits(<span class="number">64</span>))</span><br><span class="line">    q = next_prime(randbits(<span class="number">64</span>))</span><br><span class="line">    n = p * q</span><br><span class="line">    phi = (p - <span class="number">1</span>) * (q - <span class="number">1</span>)</span><br><span class="line">    <span class="comment"># 确保 e 与 phi 互素</span></span><br><span class="line">    <span class="keyword">if</span> gcd(e, phi) == <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 待加密消息</span></span><br><span class="line">m = bytes_to_long(<span class="string">b&#x27;pwnerik.cn&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Original Message (int): <span class="subst">&#123;m&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确保消息小于模数 n</span></span><br><span class="line"><span class="keyword">assert</span> <span class="number">0</span> &lt;= m &lt; n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加密过程</span></span><br><span class="line">c = powmod(m, e, n)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Ciphertext: <span class="subst">&#123;c&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算私钥 d</span></span><br><span class="line">d = inverse(e, phi)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解密过程</span></span><br><span class="line">msg = powmod(c, d, n)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Decrypted Message (int): <span class="subst">&#123;msg&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证正确性</span></span><br><span class="line"><span class="keyword">assert</span> m == msg</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;RSA Verification Successful!&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、-实验总结"><a href="#三、-实验总结" class="headerlink" title="三、 实验总结"></a>三、 实验总结</h2><p>本次实验涵盖了 RSA 算法的理论优化与基础实现：</p>
+<ol>
+<li><p><strong>关于不动点（Project Euler 182）：</strong><br>通过实验发现，RSA 算法并不总是能“隐藏”信息。在选择参数时，如果不刻意筛选，可能会存在较多的不动点。利用公式 $N&#x3D;(1+\gcd(e-1,p-1))\times(1+\gcd(e-1,q-1))$ 可以快速评估 $e$ 的优劣。这提示我们在实际部署 RSA 时，除了素数的安全性，公钥指数的选择也需考究（虽然通常使用的 65537 已经是一个很好的权衡）。</p>
+</li>
+<li><p><strong>关于 RSA 实现（Cryptopals 39）：</strong><br>手动实现 <code>ex_gcd</code> 让我对数论基础有了更直观的认识。然而，实验中的代码实现仅作为一个“教科书式”的原型（Textbook RSA），存在明显的<strong>安全隐患</strong>：</p>
+<ul>
+<li><strong>参数过小</strong>：实验中为了演示仅使用了 64 位的素数，生成的 $n$ 极易被分解。实际应用至少需要 2048 位。</li>
+<li><strong>公钥 $e$ 过小</strong>：实验中固定 $e&#x3D;3$。虽然计算快，但在加密短消息或广播攻击场景下非常脆弱（例如 Coppersmith 攻击）。</li>
+<li><strong>缺乏填充（Padding）</strong>：代码直接对转换后的整数进行运算。现实中必须使用 <strong>OAEP</strong> 或 <strong>PKCS#1 v1.5</strong> 填充方案，以引入随机性，防止对相同消息产生相同密文，并抵抗选择密文攻击。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="四、-参考文献"><a href="#四、-参考文献" class="headerlink" title="四、 参考文献"></a>四、 参考文献</h2><ol>
+<li><strong>Project Euler Problem 182</strong>: <a target="_blank" rel="noopener" href="https://projecteuler.net/problem=182">https://projecteuler.net/problem=182</a> </li>
+<li><strong>Cryptopals Crypto Challenges Set 5</strong>: <a target="_blank" rel="noopener" href="https://www.cryptopals.com/sets/5/challenges/39">https://www.cryptopals.com/sets/5/challenges/39</a> </li>
+<li><strong>Python gmpy2 Documentation</strong>: <a target="_blank" rel="noopener" href="https://gmpy2.readthedocs.io/">https://gmpy2.readthedocs.io/</a></li>
+</ol>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/09/Cryptography-Experiment-3/" data-id="cuid9XxlCjnC138R-8B7mPd0x" data-title="&#39;Cryptography-Experiment-3&#39;" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2025/12/09/Cryptography-Experiment-3/" data-id="cuid9XxlCjnC138R-8B7mPd0x" data-title="Cryptography-Experiment-3" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -107,20 +172,15 @@
     
 <nav id="article-nav">
   
-    <a href="/2025/12/09/Cryptography-Experiment-4/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2025/12/09/Cryptography-Experiment-2/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          &#39;Cryptography-Experiment-4&#39;
+          Cryptography-Experiment-2
         
       </div>
     </a>
   
-  
-    <a href="/2025/12/09/Cryptography-Experiment-2/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">&#39;Cryptography-Experiment-2&#39;</div>
-    </a>
   
 </nav>
 
@@ -165,15 +225,15 @@
           </li>
         
           <li>
-            <a href="/2025/12/09/Cryptography-Experiment-3/">&#39;Cryptography-Experiment-3&#39;</a>
-          </li>
-        
-          <li>
-            <a href="/2025/12/09/Cryptography-Experiment-2/">&#39;Cryptography-Experiment-2&#39;</a>
-          </li>
-        
-          <li>
             <a href="/2025/12/09/Cryptography-Experiment-1/">Cryptography-Experiment-1</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/09/Cryptography-Experiment-2/">Cryptography-Experiment-2</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/09/Cryptography-Experiment-3/">Cryptography-Experiment-3</a>
           </li>
         
       </ul>

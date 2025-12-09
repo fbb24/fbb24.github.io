@@ -4,15 +4,17 @@
   <meta charset="utf-8">
   
   
-  <title>&#39;Cryptography-Experiment-2&#39; | Hexo</title>
+  <title>Cryptography-Experiment-2 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="article">
-<meta property="og:title" content="&#39;Cryptography-Experiment-2&#39;">
+  <meta name="description" content="现代密码学实验二：分组密码模式与攻击分析   课程名称 现代密码学 实验人 冯汝鑫    题目 实验二：AES 工作模式与 Oracle 攻击 学号 23009200482   实验摘要本实验重点研究分组密码的常用工作模式及其安全性弱点。 首先，针对 Cryptopals Set 2 的一系列挑战，实现了 PKCS#7 填充标准和 CBC（Cipher Block Chaining） 模式的加密">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cryptography-Experiment-2">
 <meta property="og:url" content="http://example.com/2025/12/09/Cryptography-Experiment-2/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="现代密码学实验二：分组密码模式与攻击分析   课程名称 现代密码学 实验人 冯汝鑫    题目 实验二：AES 工作模式与 Oracle 攻击 学号 23009200482   实验摘要本实验重点研究分组密码的常用工作模式及其安全性弱点。 首先，针对 Cryptopals Set 2 的一系列挑战，实现了 PKCS#7 填充标准和 CBC（Cipher Block Chaining） 模式的加密">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-12-09T13:37:01.000Z">
-<meta property="article:modified_time" content="2025-12-09T13:37:01.709Z">
+<meta property="article:published_time" content="2025-12-09T12:57:50.000Z">
+<meta property="article:modified_time" content="2025-12-09T19:49:28.552Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -74,7 +76,7 @@
         <section id="main"><article id="post-Cryptography-Experiment-2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/12/09/Cryptography-Experiment-2/" class="article-date">
-  <time class="dt-published" datetime="2025-12-09T13:37:01.000Z" itemprop="datePublished">2025-12-09</time>
+  <time class="dt-published" datetime="2025-12-09T12:57:50.000Z" itemprop="datePublished">2025-12-09</time>
 </a>
     
   </div>
@@ -85,7 +87,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      &#39;Cryptography-Experiment-2&#39;
+      Cryptography-Experiment-2
     </h1>
   
 
@@ -93,11 +95,110 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        
+        <hr>
+<h1 id="现代密码学实验二：分组密码模式与攻击分析"><a href="#现代密码学实验二：分组密码模式与攻击分析" class="headerlink" title="现代密码学实验二：分组密码模式与攻击分析"></a>现代密码学实验二：分组密码模式与攻击分析</h1><table>
+<thead>
+<tr>
+<th align="left">课程名称</th>
+<th align="left">现代密码学</th>
+<th align="left">实验人</th>
+<th align="left">冯汝鑫</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>题目</strong></td>
+<td align="left"><strong>实验二：AES 工作模式与 Oracle 攻击</strong></td>
+<td align="left"><strong>学号</strong></td>
+<td align="left">23009200482</td>
+</tr>
+</tbody></table>
+<h2 id="实验摘要"><a href="#实验摘要" class="headerlink" title="实验摘要"></a>实验摘要</h2><p>本实验重点研究分组密码的常用工作模式及其安全性弱点。</p>
+<p>首先，针对 Cryptopals Set 2 的一系列挑战，实现了 <strong>PKCS#7</strong> 填充标准和 <strong>CBC（Cipher Block Chaining）</strong> 模式的加密与解密逻辑。在此基础上，通过编程实践了针对 <strong>ECB（Electronic Codebook）</strong> 模式的多种攻击，包括 Oracle 探测、逐字节（Byte-at-a-time）自适应选择明文攻击（Chosen-Plaintext Attack）以及“剪切-粘贴”（Cut-and-paste）伪造攻击，深刻揭示了 ECB 模式无法隐藏数据模式的严重缺陷。</p>
+<p>此外，实验还利用 <strong>CBC 模式的位翻转（Bit-flipping）</strong> 特性，成功在不知道密钥的情况下篡改了密文对应的明文内容，验证了 CBC 模式在缺乏完整性校验（MAC）时的可塑性。</p>
+<p>对于 MTC3 平台的电子护照 AES 密钥提取题目，由于原题源已失效，本报告对基于机器可读区（MRZ）生成 AES 密钥的原理进行了理论分析。</p>
+<hr>
+<h2 id="一、-MTC3-AES-Key-from-European-ePassport"><a href="#一、-MTC3-AES-Key-from-European-ePassport" class="headerlink" title="一、 MTC3: AES Key from European ePassport"></a>一、 MTC3: AES Key from European ePassport</h2><h3 id="1-1-题目描述与现状"><a href="#1-1-题目描述与现状" class="headerlink" title="1.1 题目描述与现状"></a>1.1 题目描述与现状</h3><p>题目要求从电子护照的机器可读区（MRZ, Machine Readable Zone）信息中解码出 AES 密钥，并解密一段密文。<br><strong>现状说明</strong>：原题目链接及资源已过期，且现行 ICAO 标准与旧版题目描述存在差异。因此，本部分主要进行原理性分析。</p>
+<h3 id="1-2-原理分析"><a href="#1-2-原理分析" class="headerlink" title="1.2 原理分析"></a>1.2 原理分析</h3><p>电子护照（ePassport）通常使用 <strong>基本访问控制（BAC, Basic Access Control）</strong> 机制。读取终端需要通过光学扫描 MRZ 区获取特定信息来推导出会话密钥。</p>
+<p>生成密钥 $K_{seed}$ 的通常步骤如下：</p>
+<ol>
+<li>提取 MRZ 中的关键字段：护照号码（Document Number）、出生日期（Date of Birth）、有效期（Date of Expiry）。</li>
+<li>计算每个字段的校验位。</li>
+<li>将这些字段及其校验位拼接。</li>
+<li>对拼接后的字符串进行 SHA-1 哈希计算。</li>
+<li>取哈希值的高位字节（通常是前 16 字节）作为 AES 的密钥 $K_{seed}$。</li>
+</ol>
+<hr>
+<h2 id="二、-Cryptopals-Set-2-分组密码实战"><a href="#二、-Cryptopals-Set-2-分组密码实战" class="headerlink" title="二、 Cryptopals Set 2: 分组密码实战"></a>二、 Cryptopals Set 2: 分组密码实战</h2><h3 id="2-1-基础实现：PKCS-7-与-CBC-模式"><a href="#2-1-基础实现：PKCS-7-与-CBC-模式" class="headerlink" title="2.1 基础实现：PKCS#7 与 CBC 模式"></a>2.1 基础实现：PKCS#7 与 CBC 模式</h3><h4 id="2-1-1-Implement-PKCS-7-Padding"><a href="#2-1-1-Implement-PKCS-7-Padding" class="headerlink" title="2.1.1 Implement PKCS#7 Padding"></a>2.1.1 Implement PKCS#7 Padding</h4><p><strong>原理</strong>：分组密码要求输入长度必须是块大小（Block Size，通常为 16 字节）的整数倍。PKCS#7 标准规定，如果缺少 $N$ 个字节，则填充 $N$ 个值为 $N$ 的字节。即使正好整除，也要填充一个完整的块（值为 0x10）。</p>
+<p><strong>代码实现</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">pkcs_7</span>(<span class="params">content: <span class="built_in">bytes</span>, block_size=<span class="number">16</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    <span class="comment"># 计算需要填充的长度</span></span><br><span class="line">    padlen = block_size - (<span class="built_in">len</span>(content) % block_size)</span><br><span class="line">    <span class="comment"># 填充 padlen 个值为 padlen 的字节</span></span><br><span class="line">    <span class="keyword">return</span> content + <span class="built_in">bytes</span>([padlen] * padlen)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line"><span class="built_in">print</span>(pkcs_7(<span class="string">b&quot;YELLOW SUBMARINE&quot;</span>, <span class="number">20</span>)) </span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-2-Implement-CBC-Mode"><a href="#2-1-2-Implement-CBC-Mode" class="headerlink" title="2.1.2 Implement CBC Mode"></a>2.1.2 Implement CBC Mode</h4><p><strong>原理</strong>：<br>CBC 模式引入了反馈机制。</p>
+<ul>
+<li><strong>加密</strong>：$C_i &#x3D; E_k(P_i \oplus C_{i-1})$，其中 $C_0 &#x3D; IV$。</li>
+<li><strong>解密</strong>：$P_i &#x3D; D_k(C_i) \oplus C_{i-1}$。</li>
+</ul>
+<p><strong>代码实现</strong>：<br>实现了基于 AES-ECB 原语的手动 CBC 封装。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> base64 <span class="keyword">import</span> b64decode</span><br><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">aes_ecb_dec</span>(<span class="params">block: <span class="built_in">bytes</span>, key: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    cipher = AES.new(key, AES.MODE_ECB)</span><br><span class="line">    <span class="keyword">return</span> cipher.decrypt(block)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bytesxor</span>(<span class="params">a: <span class="built_in">bytes</span>, b: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    <span class="comment"># 辅助函数：字节异或</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">bytes</span>([x ^ y <span class="keyword">for</span> (x, y) <span class="keyword">in</span> <span class="built_in">zip</span>(a, b)])</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">depkcs_7</span>(<span class="params">content: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    <span class="comment"># 去除 Padding</span></span><br><span class="line">    <span class="keyword">return</span> content[:<span class="built_in">len</span>(content) - content[-<span class="number">1</span>]]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">aes_cbc_dec</span>(<span class="params">cipher: <span class="built_in">bytes</span>, key: <span class="built_in">bytes</span>, iv: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    result = <span class="built_in">bytes</span>()</span><br><span class="line">    prev_block = iv</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(cipher), <span class="number">16</span>):</span><br><span class="line">        block = cipher[i:i+<span class="number">16</span>]</span><br><span class="line">        <span class="comment"># 解密当前块</span></span><br><span class="line">        decrypted = aes_ecb_dec(block, key)</span><br><span class="line">        <span class="comment"># 与前一块密文（或IV）异或得到明文</span></span><br><span class="line">        result += bytesxor(decrypted, prev_block)</span><br><span class="line">        prev_block = block</span><br><span class="line">    <span class="keyword">return</span> depkcs_7(result)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试题目给定的 10.txt</span></span><br><span class="line">key = <span class="string">b&quot;YELLOW SUBMARINE&quot;</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;10.txt&#x27;</span>, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    encrypted_b64 = f.read()</span><br><span class="line">cipher = b64decode(encrypted_b64)</span><br><span class="line"><span class="comment"># 题目要求 IV 全 0</span></span><br><span class="line"><span class="built_in">print</span>(aes_cbc_dec(cipher, key, <span class="string">b&#x27;\x00&#x27;</span> * <span class="number">16</span>).decode()[:<span class="number">50</span>] + <span class="string">&quot;...&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-2-ECB-模式的弱点与探测"><a href="#2-2-ECB-模式的弱点与探测" class="headerlink" title="2.2 ECB 模式的弱点与探测"></a>2.2 ECB 模式的弱点与探测</h3><h4 id="2-2-1-ECB-CBC-Detection-Oracle"><a href="#2-2-1-ECB-CBC-Detection-Oracle" class="headerlink" title="2.2.1 ECB&#x2F;CBC Detection Oracle"></a>2.2.1 ECB&#x2F;CBC Detection Oracle</h4><p><strong>原理</strong>：<br>ECB 模式是确定性的，相同的明文块总是加密成相同的密文块。如果我们输入一段长度超过两倍块大小（&gt;32字节）的重复数据（如 <code>A</code> * 48），在 ECB 模式下，密文中必然会出现两个完全相同的 16 字节块。CBC 模式由于引入了 IV 和反馈，不会出现这种情况。</p>
+<p><strong>检测代码</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">detect_mode</span>(<span class="params">ciphertext: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="comment"># 将密文按 16 字节分块</span></span><br><span class="line">    blocks = [ciphertext[i:i+<span class="number">16</span>] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(ciphertext), <span class="number">16</span>)]</span><br><span class="line">    <span class="comment"># 如果存在重复块，集合长度将小于列表长度</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(<span class="built_in">set</span>(blocks)) != <span class="built_in">len</span>(blocks):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;ECB&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;CBC&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-3-Byte-at-a-time-ECB-Decryption-Simple-Harder"><a href="#2-3-Byte-at-a-time-ECB-Decryption-Simple-Harder" class="headerlink" title="2.3 Byte-at-a-time ECB Decryption (Simple &amp; Harder)"></a>2.3 Byte-at-a-time ECB Decryption (Simple &amp; Harder)</h3><h4 id="2-3-1-攻击原理-Chosen-Plaintext-Attack"><a href="#2-3-1-攻击原理-Chosen-Plaintext-Attack" class="headerlink" title="2.3.1 攻击原理 (Chosen Plaintext Attack)"></a>2.3.1 攻击原理 (Chosen Plaintext Attack)</h4><p>这是一个非常经典的针对 ECB 的<strong>选择明文攻击</strong>。<br>假设 Oracle 执行：<code>AES-ECB(Your-Input || Unknown-String, Key)</code>。</p>
+<ol>
+<li><strong>构造输入</strong>：我们输入 <code>A * 15</code>。</li>
+<li><strong>Oracle 加密</strong>：<code>AES-ECB( &quot;AAAAAAAAAAAAAAA&quot; + &quot;S&quot; + ... )</code>。第一个块只包含 15 个 A 和 Unknown 的第 1 个字符（设为 S）。我们记下这个输出块 $C_{target}$。</li>
+<li><strong>爆破</strong>：我们在本地尝试 <code>AES-ECB( &quot;AAAAAAAAAAAAAAA&quot; + Guess )</code>，遍历 0-255。当结果等于 $C_{target}$ 时，我们就解出了 <code>S</code>。</li>
+<li><strong>迭代</strong>：下一步输入 <code>A * 14</code>，此时块包含 <code>AAAAAAAAAAAAAA</code> + <code>S</code> + <code>Unknown[1]</code>。利用已知 <code>S</code> 重复上述过程。</li>
+</ol>
+<h4 id="2-3-2-进阶情况-Harder"><a href="#2-3-2-进阶情况-Harder" class="headerlink" title="2.3.2 进阶情况 (Harder)"></a>2.3.2 进阶情况 (Harder)</h4><p>当 Oracle 在我们的输入前添加了随机长度的前缀：<code>AES-ECB( Random-Prefix || Your-Input || Unknown-String )</code>。<br><strong>解决策略</strong>：</p>
+<ol>
+<li><strong>确定前缀长度</strong>：输入大量相同的字节，找到密文中第一次出现重复块的位置，以此推算出前缀的长度及填充 offset。</li>
+<li><strong>对齐块</strong>：通过填充特定长度的垃圾数据，抵消随机前缀，使我们的 payload 正好从一个新的块开始。</li>
+<li><strong>执行攻击</strong>：回到 Simple 版本的攻击逻辑。</li>
+</ol>
+<p><strong>核心代码展示 (Simple版)</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 模拟 Oracle</span></span><br><span class="line">unknown = b64decode(<span class="string">&#x27;Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK&#x27;</span>)</span><br><span class="line">cipher = AES.new(token_bytes(<span class="number">16</span>), AES.MODE_ECB)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">encryption_oracle</span>(<span class="params">plaintext: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    <span class="keyword">return</span> cipher.encrypt(pkcs_7(plaintext + unknown))</span><br><span class="line"></span><br><span class="line">cracked = <span class="string">b&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(unknown)):</span><br><span class="line">    <span class="comment"># 构造 padding，使目标字节正好落在块的末尾</span></span><br><span class="line">    padding = <span class="string">b&#x27;A&#x27;</span> * ((<span class="number">16</span> - <span class="number">1</span>) - (i % <span class="number">16</span>))</span><br><span class="line">    encrypted = encryption_oracle(padding)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 锁定包含目标字节的块</span></span><br><span class="line">    start = i // <span class="number">16</span> * <span class="number">16</span></span><br><span class="line">    target_block = encrypted[start:start + <span class="number">16</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 爆破最后一个字节</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">256</span>):</span><br><span class="line">        test_input = (padding + cracked)[-<span class="number">15</span>:] + <span class="built_in">bytes</span>([j])</span><br><span class="line">        <span class="keyword">if</span> encryption_oracle(test_input)[:<span class="number">16</span>] == target_block:</span><br><span class="line">            cracked += <span class="built_in">bytes</span>([j])</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Decrypted: <span class="subst">&#123;cracked.decode()[:<span class="number">30</span>]&#125;</span>...&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-4-ECB-Cut-and-Paste-攻击"><a href="#2-4-ECB-Cut-and-Paste-攻击" class="headerlink" title="2.4 ECB Cut-and-Paste 攻击"></a>2.4 ECB Cut-and-Paste 攻击</h3><p><strong>场景</strong>：<br>假设有一个函数 <code>profile_for(email)</code> 生成 <code>email=foo@bar.com&amp;uid=10&amp;role=user</code> 格式的 Cookie 并加密。我们想伪造一个 <code>role=admin</code> 的 Cookie。</p>
+<p><strong>攻击步骤</strong>：</p>
+<ol>
+<li><strong>构造 Admin 块</strong>：<br>我们需要构造一个单独的密文块，解密后恰好是 <code>admin</code> + Padding。<br>输入 Email 为：<code>&quot;A&quot;*10 + &quot;admin&quot; + &quot;\x0b&quot;*11</code>。<br>生成的明文（第2块）为：<code>email=AAAAAAAAAA</code> | <code>admin\x0b\x0b...</code> | <code>&amp;uid=...</code>。<br>提取中间那个加密块，它就是加密后的“admin”。</li>
+<li><strong>构造前缀块</strong>：<br>输入 Email 使 <code>role=</code> 正好处于块的末尾。<br>长度计算：<code>email=</code> (6) + <code>&amp;uid=10&amp;role=</code> (13) + X &#x3D; 32 (两个块)。<br>我们需要输入长度合适的 Email，使得最后剩余部分正好准备接 <code>role</code> 的值。</li>
+<li><strong>拼接</strong>：<br>将前缀块的密文与我们提取的 Admin 密文块拼接。</li>
+</ol>
+<p><strong>结果验证</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 通过拼接伪造的密文，解密结果为：</span></span><br><span class="line"><span class="comment"># &#123;&#x27;email&#x27;: &#x27;AAAAAAAAAAadmin...&#x27;, &#x27;uid&#x27;: &#x27;1&#x27;, &#x27;role&#x27;: &#x27;admin&#x27;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>攻击成功，我们在不知道密钥的情况下提升了权限。</p>
+<hr>
+<h3 id="2-5-CBC-Bit-flipping-Attacks"><a href="#2-5-CBC-Bit-flipping-Attacks" class="headerlink" title="2.5 CBC Bit-flipping Attacks"></a>2.5 CBC Bit-flipping Attacks</h3><p><strong>原理</strong>：<br>CBC 解密公式为 $P_i &#x3D; D_k(C_i) \oplus C_{i-1}$。<br>这意味着，如果我们翻转密文块 $C_{i-1}$ 的第 $j$ 位，解密时 $P_i$ 的第 $j$ 位也会随之翻转（尽管 $P_{i-1}$ 会完全损坏，但这通常不可见或不重要）。</p>
+<p><strong>攻击目标</strong>：<br>将明文 <code>...;userdata=...</code> 修改为 <code>...;admin=true;...</code>。<br>系统会转义 <code>;</code> 和 <code>=</code>，我们无法直接输入。我们可以输入 <code>?admin?true?</code>，然后通过翻转密文对应的位，将 <code>?</code> 变成 <code>;</code> 和 <code>=</code>。</p>
+<p><strong>代码实现</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">encrypt_userdata</span>(<span class="params">userdata: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    prefix = <span class="string">b&#x27;comment1=cooking%20MCs;userdata=&#x27;</span></span><br><span class="line">    <span class="comment"># 系统会过滤特殊字符，无法直接注入 ;admin=true;</span></span><br><span class="line">    <span class="keyword">return</span> aes_cbc_enc(prefix + quote(userdata) + suffix, KEY, IV)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 攻击载荷：使用 AAAAA 占位，后面跟目标字符串，但在关键符号处用 XOR 掩码处理</span></span><br><span class="line"><span class="comment"># 我们希望明文某处变为 &quot;;admin=true;&quot;</span></span><br><span class="line"><span class="comment"># 假设我们输入 &quot;:admin&lt;true:&quot; (仅为示例，需计算差异)</span></span><br><span class="line">target = <span class="string">b&#x27;;admin=true;&#x27;</span></span><br><span class="line">input_str = <span class="string">b&#x27;A&#x27;</span>*<span class="number">16</span> + <span class="string">b&#x27;AAAAAA;comme&#x27;</span> <span class="comment"># 对齐</span></span><br><span class="line"><span class="comment"># ... (计算 mask 并异或密文) ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 核心位翻转逻辑</span></span><br><span class="line">mask = bytesxor(<span class="string">b&#x27;AAAAAA;comme&#x27;</span>, <span class="string">b&#x27;;admin=true;&#x27;</span>)</span><br><span class="line"><span class="comment"># 修改前一块密文的对应位置</span></span><br><span class="line">fake_ciphertext = ciphertext[:<span class="number">32</span>] + \</span><br><span class="line">                  bytesxor(ciphertext[<span class="number">32</span>:<span class="number">32</span>+<span class="built_in">len</span>(mask)], mask) + \</span><br><span class="line">                  ciphertext[<span class="number">32</span>+<span class="built_in">len</span>(mask):]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Admin check: <span class="subst">&#123;check_admin(fake_ciphertext)&#125;</span>&quot;</span>) <span class="comment"># Output: True</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、-实验总结"><a href="#三、-实验总结" class="headerlink" title="三、 实验总结"></a>三、 实验总结</h2><p>本次实验通过 Cryptopals Set 2 的一些列挑战，从实现基础算法到利用算法模式的缺陷进行攻击，让我对分组密码有了深刻的理解：</p>
+<ol>
+<li><strong>ECB 绝对不应使用</strong>：ECB 模式保留了明文的统计特征，且缺乏完整性保护。通过 Oracle 攻击（Byte-at-a-time）可以在完全不知道密钥的情况下还原全部明文；通过 Cut-and-Paste 可以随意伪造数据块。</li>
+<li><strong>CBC 的可塑性（Malleability）</strong>：虽然 CBC 解决了模式泄露问题，但它不提供完整性。攻击者可以精确地修改密文，从而在解密后的明文中产生预期的变化（Bit-flipping）。这证明了加密（Confidentiality）并不等于防篡改（Integrity），实际应用中必须配合 MAC（如 HMAC）使用。</li>
+<li><strong>Padding 的重要性</strong>：PKCS#7 是标准填充方式，但如果实现不当（Padding Oracle，虽本实验主要涉及其变种），也会成为攻击入口。正确的去填充和校验至关重要。</li>
+</ol>
+<hr>
+<h2 id="四、-参考文献"><a href="#四、-参考文献" class="headerlink" title="四、 参考文献"></a>四、 参考文献</h2><ol>
+<li><strong>Cryptopals Crypto Challenges Set 2</strong>: <a target="_blank" rel="noopener" href="https://cryptopals.com/sets/2">https://cryptopals.com/sets/2</a></li>
+<li><strong>PyCryptodome Documentation</strong>: <a target="_blank" rel="noopener" href="https://www.pycryptodome.org/">https://www.pycryptodome.org/</a></li>
+<li><strong>Machine Readable Travel Documents (ICAO Doc 9303)</strong>: <a target="_blank" rel="noopener" href="https://www.icao.int/">https://www.icao.int/</a></li>
+<li><strong>MysteryTwister C3</strong>: <a target="_blank" rel="noopener" href="https://www.mysterytwisterc3.org/">https://www.mysterytwisterc3.org/</a></li>
+</ol>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/12/09/Cryptography-Experiment-2/" data-id="cuidsojS5LFdXBr4omUxfxl65" data-title="&#39;Cryptography-Experiment-2&#39;" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2025/12/09/Cryptography-Experiment-2/" data-id="cuidsojS5LFdXBr4omUxfxl65" data-title="Cryptography-Experiment-2" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -107,19 +208,19 @@
     
 <nav id="article-nav">
   
-    <a href="/2025/12/09/Cryptography-Experiment-3/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2025/12/09/Cryptography-Experiment-1/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          &#39;Cryptography-Experiment-3&#39;
+          Cryptography-Experiment-1
         
       </div>
     </a>
   
   
-    <a href="/2025/12/09/Cryptography-Experiment-1/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2025/12/09/Cryptography-Experiment-3/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Cryptography-Experiment-1</div>
+      <div class="article-nav-title">Cryptography-Experiment-3</div>
     </a>
   
 </nav>
@@ -165,15 +266,15 @@
           </li>
         
           <li>
-            <a href="/2025/12/09/Cryptography-Experiment-3/">&#39;Cryptography-Experiment-3&#39;</a>
-          </li>
-        
-          <li>
-            <a href="/2025/12/09/Cryptography-Experiment-2/">&#39;Cryptography-Experiment-2&#39;</a>
-          </li>
-        
-          <li>
             <a href="/2025/12/09/Cryptography-Experiment-1/">Cryptography-Experiment-1</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/09/Cryptography-Experiment-2/">Cryptography-Experiment-2</a>
+          </li>
+        
+          <li>
+            <a href="/2025/12/09/Cryptography-Experiment-3/">Cryptography-Experiment-3</a>
           </li>
         
       </ul>
